@@ -116,6 +116,10 @@ auto model::vcov( const std::string& which ) const -> matrix
     {
         return MSE( ) * ( identity( n ) - hat( ) );
     }
+    if ( which == "yh" )
+    {
+        return MSE( ) * hat( );
+    }
     else
     {
         matrix empty;
@@ -212,23 +216,19 @@ auto model::R2( ) const -> long double
     return SSE( ) - SSTO( );
 }
 
-auto model::R2partial( const std::vector< unsigned int >& which ) const -> long double
+auto model::R2partial( const std::vector< unsigned int >& which, const std::vector< unsigned int >& given ) const -> long double
 {
-    auto given = explanatory_cols;
-    for ( int i = 0; i < which.size( ); ++i )
+    auto all = given;
+    for ( auto &elem : which )
     {
-        auto it = find( given.begin( ), given.end( ), which[ i ] );
-        if ( it != given.end( ) )
-        {
-            given.erase( given.begin( ) + distance( given.begin( ), it ) );
-        }
+        all.push_back( elem );
     }
-    return ESSR( which, given ) / fitlm( rawdata, response_col, given, index_mode, transform ).SSE( );
+    return fitlm( rawdata, response_col, all, index_mode, transform ).ESSR( which, given ) / fitlm( rawdata, response_col, given, index_mode, transform ).SSE( );
 }
 
-auto model::rpartial( const std::vector< unsigned int >& which ) const -> long double
+auto model::rpartial( const std::vector< unsigned int >& which, const std::vector< unsigned int >& given ) const -> long double
 {
-    return sqrtl( R2partial( which ) );
+    return sqrtl( R2partial( which, given ) );
 }
 
 auto model::corXX( ) const -> matrix
@@ -266,19 +266,19 @@ auto model::destandardize( ) const -> matrix
     }
     else
     {
-        auto sy = s( rawdata.getcol( response_col - !index_mode ) );
+        auto sy = s( preSTANDARD.getcol( response_col - !index_mode ) );
         long double sx;
         long double beta;
         long double sum = 0;
         matrix out = init(0,nparam(),1);
         for ( int i = 0; i < nparam( ) - 1; ++i )
         {
-            sx = s( rawdata.getcol( explanatory_cols[ i ] - !index_mode ) );
+            sx = s( preSTANDARD.getcol( explanatory_cols[ i ] - !index_mode ) );
             beta = (sy/sx) * coef( ).getelem( i + 1, 0, true );
             out.setelem( beta, i + 1, 0, true );
-            sum -= mean( rawdata.getcol( explanatory_cols[ i ] - !index_mode ) ) * beta;
+            sum -= mean( preSTANDARD.getcol( explanatory_cols[ i ] - !index_mode ) ) * beta;
         }
-        out.setelem( mean(rawdata.getcol( response_col - !index_mode )) + sum, 0, 0, true );
+        out.setelem( mean(preSTANDARD.getcol( response_col - !index_mode )) + sum, 0, 0, true );
         return out;
     }
 }

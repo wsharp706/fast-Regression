@@ -14,6 +14,7 @@ class model
 {
     private:
     matrix rawdata;
+    matrix preSTANDARD; // this guy is only used for standardized models.
     matrix X;
     matrix Xt;
     matrix XtX_inv;
@@ -236,7 +237,7 @@ class model
      * @param which vector of integers indicating which explanatory variable as reponse. ex, { 1, 2 } is R^2_{1,2|against}
      * @param against vector of integers indicatating which explanatory variables as against
      */
-    auto R2partial( const std::vector< unsigned int >& which, const std::vector< unsigned int >& against ) const -> long double;
+    auto R2partial( const std::vector< unsigned int >& which, const std::vector< unsigned int >& given ) const -> long double;
 
     /**
      * @brief compute sqrt of coefficent of partial determination for given set of explanatory variables
@@ -251,7 +252,7 @@ class model
      * @param which vector of integers indicating which explanatory variable as reponse. ex, { 1, 2 } is r_{1,2|against}
      * @param against vector of integers indicatating which explanatory variables as against
      */
-    auto rpartial( const std::vector< unsigned int >& which, const std::vector< unsigned int >& against ) const -> long double;
+    auto rpartial( const std::vector< unsigned int >& which, const std::vector< unsigned int >& given ) const -> long double;
 
     /**
      * @brief compute XX correlation matrix
@@ -328,6 +329,7 @@ inline auto fitlm( const matrix& data, unsigned int response_col, std::vector< u
         result.residuals = result.Y - result.X % result.beta;
         result.transform = transform;
         result.index_mode = index_mode;
+        result.preSTANDARD = data;
         return result;
     }
     else
@@ -417,6 +419,7 @@ inline auto fitwlm( const matrix& data, unsigned int response_col, std::vector< 
         result.residuals = result.Y - result.X % result.beta;
         result.transform = transform;
         result.index_mode = index_mode;
+        result.preSTANDARD = data;
         return result;
     }
     else
