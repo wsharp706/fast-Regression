@@ -26,10 +26,7 @@ matrix::matrix( const matrix &original ) : dim_n{ 0 }, dim_m{ 0 }
 
 auto matrix::clear( ) -> void
 {
-    for ( int row = 0; row < dim_n; ++row )
-    {
-        data.pop_back( );
-    }
+    data.clear( );
     dim_n = 0;
     dim_m = 0;
 }
@@ -46,7 +43,7 @@ auto matrix::ncol( ) const -> int
 
 auto matrix::getrow( int index ) const -> std::vector< long double >
 {
-    if ( index > nrow( ) )
+    if ( index < 0 || index >= nrow( ) )
     {
         throw dimSizeError{"CANNOT RETREIVE ROW OUTSIDE MATRIX"};
     }
@@ -55,7 +52,7 @@ auto matrix::getrow( int index ) const -> std::vector< long double >
 
 auto matrix::getcol( int index ) const -> std::vector< long double >
 {
-    if ( index > ncol( ) )
+    if ( index < 0 || index >= ncol( ) )
     {
         throw dimSizeError{"CANNOT RETREIVE COL OUTSIDE MATRIX"};
     }
@@ -71,13 +68,13 @@ auto matrix::getelem( int row, int col, bool index ) const -> long double
 {
     if ( index )
     {
-        if ( row > nrow( ) - 1 || col > ncol( ) - 1 )
+        if ( index < 0 || row >= nrow( ) || col < 0 || col >= ncol( ) )
         {
             throw dimSizeError{"CANNOT getelem OUTSIDE OF MATRIX DIMENSIONS"};
         }
         return data[ row ][ col ];
     }
-    if ( row > nrow( ) || col > ncol( ) )
+    if ( row < 1 || row > nrow( ) || col < 1 || col > ncol( ) )
     {
         throw dimSizeError{"CANNOT getelem OUTSIDE OF MATRIX DIMENSIONS"};
     }
@@ -88,7 +85,7 @@ auto matrix::setelem( long double value, int row, int col, bool index ) -> void
 {
     if ( index )
     {
-        if ( row > nrow( ) - 1 || col > ncol( ) - 1 )
+        if ( index < 0 || row >= nrow( ) || col < 0 || col >= ncol( ) )
         {
             throw dimSizeError{"CANNOT setelem OUTSIDE OF MATRIX DIMENSIONS"};
         }
@@ -96,7 +93,7 @@ auto matrix::setelem( long double value, int row, int col, bool index ) -> void
     }
     if ( !index )
     {
-        if ( row > nrow( ) || col > ncol( ) )
+        if ( row < 1 || row > nrow( ) || col < 1 || col > ncol( ) )
         {
             throw dimSizeError{"CANNOT setelem OUTSIDE OF MATRIX DIMENSIONS"};
         }
@@ -209,7 +206,7 @@ auto matrix::insertrow( std::vector< long double > t_row, int index, int quantit
 
 auto matrix::insertcol( std::vector< long double > t_col, int index, int quantity ) -> void
 {
-    if ( index == ncol( ) )
+    if ( !index && !ncol( ) )
     {
         for ( int i = 0; i < quantity; ++i )
         {
@@ -220,6 +217,14 @@ auto matrix::insertcol( std::vector< long double > t_col, int index, int quantit
     if ( t_col.size( ) != nrow( ) || index > ncol( ) )
     {
         throw dimSizeError{"CANNOT INSERT COL OF INCOMPATIBLE DIMENSIONS"};
+    }
+    if ( index == ncol( ) )
+    {
+        for ( int i = 0; i < quantity; ++i )
+        {
+            appendcol( t_col );
+        }
+        return;
     }
     else
     {
@@ -235,7 +240,7 @@ auto matrix::insertcol( std::vector< long double > t_col, int index, int quantit
 
 auto matrix::droprow( int index ) -> void
 {
-    if ( index >= ncol( ) )
+    if ( index < 0 || index >= ncol( ) )
     {
         throw dimSizeError{"CANNOT DROP ROW OUTSIDE MATRIX DIMENSIONS"};
     }
@@ -245,7 +250,7 @@ auto matrix::droprow( int index ) -> void
 
 auto matrix::dropcol( int index ) -> void
 {
-    if ( index >= nrow( ) )
+    if ( index < 0 || index >= nrow( ) )
     {
         throw dimSizeError{"CANNOT DROP COL OUTSIDE MATRIX DIMENSIONS"};
     }
@@ -815,6 +820,3 @@ auto qr_decomp( const matrix& t_matrix ) -> std::vector< matrix >
     QR[ 1 ] = R;
     return QR;
 }
-
-
-

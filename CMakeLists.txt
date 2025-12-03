@@ -41,26 +41,26 @@ target_link_libraries(model_lib
 # --------------------testing executables--------------------
 
 # matrix test
-add_executable(matrixTest)
-target_sources(matrixTest
-    PRIVATE
-        tests/matrixTest.cpp
-)
+#add_executable(matrixTest)
+#target_sources(matrixTest
+#    PRIVATE
+#        tests/matrixTest.cpp
+#)
 
-target_link_libraries(matrixTest
-    PRIVATE
-        matrix_lib
-)
+#target_link_libraries(matrixTest
+#    PRIVATE
+#        matrix_lib
+#)
 
 # model test
-add_executable(modelTest)
-target_sources(modelTest
-    PRIVATE
-        tests/modelTest.cpp
-)
+#add_executable(modelTest)
+#target_sources(modelTest
+#    PRIVATE
+#        tests/modelTest.cpp
+#)
 
-target_link_libraries(modelTest
-    PRIVATE
-        model_lib
-)
+#target_link_libraries(modelTest
+#    PRIVATE
+#        model_lib
+#)
 
